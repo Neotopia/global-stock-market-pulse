@@ -17,6 +17,7 @@ Output tables in PostgreSQL:
 
 Run with: python3 load_data.py
 """
+from __future__ import annotations
 
 import io
 import logging
