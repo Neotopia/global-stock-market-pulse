@@ -1,6 +1,6 @@
-# Global Markets Pulse
+# Global Stock Market Pulse
 
-![dbt CI](https://github.com/Neotopia/global-markets-pulse/actions/workflows/dbt-ci.yml/badge.svg)
+![dbt CI](https://github.com/Neotopia/global-stock-market-pulse/actions/workflows/dbt-ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-FF694B?logo=dbt&logoColor=white)
@@ -144,8 +144,8 @@ The static SPDR universe is stored in `seeds/tickers.csv` and auto-refreshed whe
 
 ```bash
 # 1. Clone and install dependencies
-git clone https://github.com/Neotopia/global-markets-pulse.git
-cd global-markets-pulse
+git clone https://github.com/Neotopia/global-stock-market-pulse.git
+cd global-stock-market-pulse
 pip3 install yfinance pandas sqlalchemy psycopg2-binary python-dotenv \
              dbt-postgres requests openpyxl finvizfinance python-dateutil
 
@@ -166,7 +166,7 @@ dbt test
 ## Project structure
 
 ```
-global-markets-pulse/
+global-stock-market-pulse/
 ├── load_data.py          # Ingestion: SPDR + Finviz + yfinance → PostgreSQL
 ├── backtest.py           # Whale signal backtesting — pure pandas, saves to PostgreSQL
 ├── .env.example          # Database connection template (never commit .env)
@@ -234,4 +234,4 @@ Every push to `main` triggers a GitHub Actions workflow that installs dependenci
 
 ## Roadmap
 
-This project is meant to evolve — check the [open issues](https://github.com/Neotopia/global-markets-pulse/issues) for planned next steps.
+This project is meant to evolve — check the [open issues](https://github.com/Neotopia/global-stock-market-pulse/issues) for planned next steps.
