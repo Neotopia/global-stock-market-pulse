@@ -61,6 +61,35 @@ models:
       - name: return_2y_pct
         description: "Price change (%) since the start of the 2-year rolling window."
 
+  - name: index_monthly_close
+    description: "Gold layer — last available close price per index, per calendar month. Built for the Global Markets trend charts: one row per ticker/month, point-in-time (not averaged), following the same convention as index_performance."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - ticker
+            - month
+    columns:
+      - name: ticker
+        description: "Yahoo Finance index symbol (e.g. ^GSPC, ^FCHI)."
+        tests:
+          - not_null
+      - name: name
+        description: "Full index name (e.g. S&P 500, CAC 40)."
+      - name: market
+        description: "ISO country code of the index (US, FR, UK, JP, IN)."
+      - name: month
+        description: "First day of the calendar month this row represents."
+        tests:
+          - not_null
+      - name: close_date
+        description: "Actual trading date of the last close within this month."
+      - name: close
+        description: "Closing price on close_date — the last trading day of the month, not an average."
+      - name: close_prev_month
+        description: "Previous month's closing price (NULL on the first row per ticker)."
+      - name: return_mom_pct
+        description: "Month-over-month percentage change, computed close-to-close. NULL on first row per ticker."
+
   - name: sector_top_movers
     description: "Gold layer — top 3 most volatile stocks per GICS sector over the last 7 trading days."
     columns:
