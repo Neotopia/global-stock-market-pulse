@@ -101,13 +101,20 @@ flowchart LR
 
 Interactive **Stock Analytics** dashboard built with Metabase, connected directly to the Gold layer. Two tabs — **Global Markets** (index KPIs, 1D/YTD/2Y returns) and **US Markets** (sector top movers, whale signals, top volatile stocks). Returns are computed close-to-close (point-in-time), not as an average of daily closes over the period — averaging would systematically understate or overstate the actual move depending on trend direction.
 
+*Example of interpretation (ne-time interpretation of that specific capture):
+
 ![Global Markets tab](docs/screenshots/dashboard_global_markets.png)
-*Global Markets — ordered "follow the sun" (Asia → Europe → US, the sequence in which each market opens). KPIs show the latest close and YTD return, both computed close-to-close via `index_performance`; the trend charts below plot the last close of each month via `index_monthly_close`, not a monthly average. As of July 30, 2026: Nikkei 225 leads the year (+19.36%), followed by FTSE 100 (+9.51%) and S&P 500 (+8.44%) — both near multi-year highs. CAC 40 is up modestly (+3.54%), having plateaued after two years of steady gains. Sensex is the outlier, down 8.52% YTD after a sharp pullback from its late-2025 peak, visible as the drop toward the end of its trend line.*
+*- KPIs and trend charts shows the latest close and YTD return not a monthly average. 
+As of July 30, 2026: Nikkei 225 leads the year (+19.36%), followed by FTSE 100 (+9.51%) and S&P 500 (+8.44%) — both near multi-year highs. 
+CAC 40 is up modestly (+3.54%), having plateaued after two years of steady gains. Sensex is the outlier, down 8.52% YTD after a sharp pullback from its late-2025 peak, visible as the drop toward the end of its trend line.*
 
-*US Markets screenshot — coming soon (finalizing the date filter/comparison setup on this tab first).*
+![US Markets tab](docs/screenshots/dashboard_us_markets.png)
+*- US Markets — all tiles on a rolling 7-day window. 
+The backtest confirms the whale signal has a real, if modest, edge: positive alpha across all three holding periods (3/5/10 days), strongest at 10 days, on a robust sample (187–193 trades each). 
+This week's two live signals — MSFT (Technology, 3.41× normal volume) and AMZN (Consumer, 2.58×) — both show a "mixed" pressure hint (Close Location Value near zero), meaning the volume spike doesn't clearly favor buyers or sellers on its own; 
 
-> Runs **locally** for now (Metabase + its embedded H2 config store, connected to your PostgreSQL Gold layer) — a deliberate choice to keep the project 100% free while it's still growing. A hosted version (Metabase Cloud, or Docker on a small VPS) is a natural next step once the project needs to be shared beyond localhost — see [Roadmap](#roadmap).
 
+> Runs **locally** for now 
 **⚠️ The link below only works if Metabase is running on your own machine.** To start it:
 
 ```bash
@@ -120,9 +127,9 @@ curl -L https://downloads.metabase.com/v0.52.5/metabase.jar -o metabase.jar
 java -jar metabase.jar
 ```
 
-Accessible at **http://localhost:3000** once started (first launch takes ~30–60s).
+Accessible at **http://localhost:3000** once started.
 
-Before opening, refresh the data so the dashboard reflects the latest prices:
+Before opening, refresh the data so the dashboard reflects the stock market data:
 
 ```bash
 python3 load_data.py   # re-ingest yfinance + Finviz + SPDR → PostgreSQL
