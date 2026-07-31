@@ -22,3 +22,31 @@ sources:
             description: "Closing price of the trading session."
           - name: Volume
             description: "Number of shares traded during the session."
+
+      - name: backtest_whale_signals
+        description: "Raw per-trade backtest results, loaded by backtest.py. One row per (whale signal × hold period) — not pre-aggregated. See backtest_summary for the aggregated view used on dashboards."
+        columns:
+          - name: ticker
+            description: "Stock symbol the whale signal fired on."
+          - name: sector
+            description: "GICS sector."
+          - name: signal_date
+            description: "Date the volume spike (whale signal) was detected."
+          - name: entry_date
+            description: "Next trading day after the signal — when the simulated trade enters."
+          - name: entry_price
+            description: "Opening price on entry_date."
+          - name: exit_date
+            description: "Date the simulated trade exits, entry_date + hold_days."
+          - name: exit_price
+            description: "Closing price on exit_date."
+          - name: hold_days
+            description: "Holding period tested — 3, 5, or 10 trading days."
+          - name: return_pct
+            description: "Trade return (%), close-to-open, entry to exit."
+          - name: bench_return_pct
+            description: "S&P 500 return (%) over the same entry/exit window."
+          - name: alpha_pct
+            description: "return_pct minus bench_return_pct — the trade's edge over a buy-and-hold S&P 500 position."
+          - name: profitable
+            description: "True if return_pct > 0."

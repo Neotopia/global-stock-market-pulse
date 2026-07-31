@@ -90,6 +90,33 @@ models:
       - name: return_mom_pct
         description: "Month-over-month percentage change, computed close-to-close. NULL on first row per ticker."
 
+  - name: backtest_summary
+    description: "Gold layer — aggregated backtest results per holding period (3/5/10 days). Answers whether the whale signal actually beats a buy-and-hold S&P 500 position. Mirrors print_summary() in backtest.py, computed in SQL for direct use in Metabase."
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          combination_of_columns:
+            - hold_days
+    columns:
+      - name: hold_days
+        description: "Holding period tested — 3, 5, or 10 trading days."
+        tests:
+          - not_null
+          - unique
+      - name: trade_count
+        description: "Number of trades simulated for this holding period."
+      - name: win_rate_pct
+        description: "Percentage of trades with a positive return."
+      - name: avg_return_pct
+        description: "Average trade return (%) for this holding period."
+      - name: median_return_pct
+        description: "Median trade return (%) — less sensitive to outlier trades than the average."
+      - name: best_return_pct
+        description: "Best single trade return (%) for this holding period."
+      - name: worst_return_pct
+        description: "Worst single trade return (%) for this holding period."
+      - name: avg_alpha_pct
+        description: "Average outperformance (%) vs a same-window S&P 500 buy-and-hold — the key metric: does the signal beat the market?"
+
   - name: sector_top_movers
     description: "Gold layer — top 3 most volatile stocks per GICS sector over the last 7 trading days."
     columns:
@@ -139,3 +166,7 @@ models:
         description: "20-day rolling average volume (excluding the spike day)."
       - name: volume_ratio
         description: "Ratio of spike volume to 20-day average (e.g. 3.2 = 3.2× normal volume)."
+      - name: clv
+        description: "Close Location Value: where the close fell within the day's high/low range, from -1 (closed at the low) to +1 (closed at the high). A proxy for buying vs selling pressure, not a certainty — true buy/sell classification would require order-flow (bid/ask) data."
+      - name: pressure_hint
+        description: "'likely buying' if clv > 0.5, 'likely selling' if clv < -0.5, 'mixed' otherwise."
