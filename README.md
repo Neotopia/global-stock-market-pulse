@@ -11,6 +11,8 @@
 ![Global Indices](https://img.shields.io/badge/Global_Indices-5_markets_(starter_set)-0ea5e9)
 ![Whale Signals](https://img.shields.io/badge/Whale_Signals-US_market_only-f59e0b)
 
+**Why this project?** I've always been curious about how global markets move and interact — this project started as a way to explore that curiosity hands-on, while learning a real data pipeline stack (ingestion → warehouse → transformation → dashboard) end to end, rather than just reading about it.
+
 A macro pulse on global stock markets — built to spot market-wide shifts quickly, from world index movements down to sector trends and US institutional activity signals.
 
 The analysis works in three layers, each zooming in a bit further:
