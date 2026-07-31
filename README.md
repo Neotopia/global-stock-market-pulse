@@ -99,10 +99,10 @@ flowchart LR
 
 ## Dashboard
 
-Interactive **Stock Analytics** dashboard built with Metabase, connected directly to the Gold layer. Two tabs — **Global Markets** (index KPIs, 1D/YTD/2Y returns) and **US Markets** (sector top movers, whale signals, top volatile stocks).
+Interactive **Stock Analytics** dashboard built with Metabase, connected directly to the Gold layer. Two tabs — **Global Markets** (index KPIs, 1D/YTD/2Y returns) and **US Markets** (sector top movers, whale signals, top volatile stocks). Returns are computed close-to-close (point-in-time), not as an average of daily closes over the period — averaging would systematically understate or overstate the actual move depending on trend direction.
 
 ![Global Markets tab](docs/screenshots/dashboard_global_markets.png)
-*Global Markets — set to **Previous Year**, the right window for a macro overview. Four of the five indices are up over the period; CAC 40 is the outlier, down 6.4%, while Nikkei 225 leads with +8.2%.*
+*Global Markets — ordered "follow the sun" (Asia → Europe → US, the sequence in which each market opens). KPIs show the latest close and YTD return, both computed close-to-close via `index_performance`; the trend charts below plot the last close of each month via `index_monthly_close`, not a monthly average. As of July 30, 2026: Nikkei 225 leads the year (+19.36%), followed by FTSE 100 (+9.51%) and S&P 500 (+8.44%) — both near multi-year highs. CAC 40 is up modestly (+3.54%), having plateaued after two years of steady gains. Sensex is the outlier, down 8.52% YTD after a sharp pullback from its late-2025 peak, visible as the drop toward the end of its trend line.*
 
 *US Markets screenshot — coming soon (finalizing the date filter/comparison setup on this tab first).*
 
