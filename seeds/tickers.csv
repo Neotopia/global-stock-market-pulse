@@ -4,28 +4,28 @@ ticker,name,sector,market,type,source,etf
 ^FTSE,FTSE 100,,UK,index,manual,
 ^N225,Nikkei 225,,JP,index,manual,
 ^BSESN,Sensex,,IN,index,manual,
-AAPL,Apple Inc,Technology,US,stock,spdr,XLK
-MSFT,Microsoft Corp,Technology,US,stock,spdr,XLK
-NVDA,NVIDIA Corp,Technology,US,stock,spdr,XLK
-AVGO,Broadcom Inc,Technology,US,stock,spdr,XLK
-META,Meta Platforms,Technology,US,stock,spdr,XLK
-BRK-B,Berkshire Hathaway B,Financial,US,stock,spdr,XLF
-JPM,JPMorgan Chase,Financial,US,stock,spdr,XLF
-V,Visa Inc,Financial,US,stock,spdr,XLF
-MA,Mastercard Inc,Financial,US,stock,spdr,XLF
-BAC,Bank of America,Financial,US,stock,spdr,XLF
-LLY,Eli Lilly,Healthcare,US,stock,spdr,XLV
-UNH,UnitedHealth Group,Healthcare,US,stock,spdr,XLV
-JNJ,Johnson & Johnson,Healthcare,US,stock,spdr,XLV
-MRK,Merck & Co,Healthcare,US,stock,spdr,XLV
-ABBV,AbbVie Inc,Healthcare,US,stock,spdr,XLV
-AMZN,Amazon.com Inc,Consumer,US,stock,spdr,XLY
-TSLA,Tesla Inc,Consumer,US,stock,spdr,XLY
-HD,Home Depot Inc,Consumer,US,stock,spdr,XLY
-MCD,McDonald's Corp,Consumer,US,stock,spdr,XLY
-LOW,Lowe's Companies,Consumer,US,stock,spdr,XLY
-XOM,ExxonMobil Corp,Energy,US,stock,spdr,XLE
-CVX,Chevron Corp,Energy,US,stock,spdr,XLE
-COP,ConocoPhillips,Energy,US,stock,spdr,XLE
-EOG,EOG Resources,Energy,US,stock,spdr,XLE
-SLB,SLB (Schlumberger),Energy,US,stock,spdr,XLE
+AAPL,APPLE INC,Technology,US,stock,spdr,XLK
+NVDA,NVIDIA CORP,Technology,US,stock,spdr,XLK
+MSFT,MICROSOFT CORP,Technology,US,stock,spdr,XLK
+AVGO,BROADCOM INC,Technology,US,stock,spdr,XLK
+AMD,ADVANCED MICRO DEVICES,Technology,US,stock,spdr,XLK
+JPM,JPMORGAN CHASE + CO,Financial,US,stock,spdr,XLF
+V,VISA INC CLASS A SHARES,Financial,US,stock,spdr,XLF
+MA,MASTERCARD INC   A,Financial,US,stock,spdr,XLF
+BAC,BANK OF AMERICA CORP,Financial,US,stock,spdr,XLF
+GS,GOLDMAN SACHS GROUP INC,Financial,US,stock,spdr,XLF
+LLY,ELI LILLY + CO,Healthcare,US,stock,spdr,XLV
+JNJ,JOHNSON + JOHNSON,Healthcare,US,stock,spdr,XLV
+ABBV,ABBVIE INC,Healthcare,US,stock,spdr,XLV
+UNH,UNITEDHEALTH GROUP INC,Healthcare,US,stock,spdr,XLV
+MRK,MERCK + CO. INC.,Healthcare,US,stock,spdr,XLV
+AMZN,AMAZON.COM INC,Consumer,US,stock,spdr,XLY
+TSLA,TESLA INC,Consumer,US,stock,spdr,XLY
+HD,HOME DEPOT INC,Consumer,US,stock,spdr,XLY
+TJX,TJX COMPANIES INC,Consumer,US,stock,spdr,XLY
+MCD,MCDONALD S CORP,Consumer,US,stock,spdr,XLY
+XOM,EXXONMOBIL HOLDINGS CORP,Energy,US,stock,spdr,XLE
+CVX,CHEVRON CORP,Energy,US,stock,spdr,XLE
+COP,CONOCOPHILLIPS,Energy,US,stock,spdr,XLE
+MPC,MARATHON PETROLEUM CORP,Energy,US,stock,spdr,XLE
+PSX,PHILLIPS 66,Energy,US,stock,spdr,XLE

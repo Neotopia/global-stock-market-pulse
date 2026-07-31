@@ -99,13 +99,38 @@ flowchart LR
 
 ## Dashboard
 
-Interactive **Stock Analytics** dashboard built with Metabase, connected directly to the Gold layer.
+Interactive **Stock Analytics** dashboard built with Metabase, connected directly to the Gold layer. Two tabs — **Global Markets** (index KPIs, 1D/YTD/2Y returns) and **US Markets** (sector top movers, whale signals, top volatile stocks).
 
-> ⚠️ Runs locally — start Metabase and PostgreSQL, then open the link below.
+![Global Markets tab](docs/screenshots/dashboard_global_markets.png)
+*Global Markets — set to **Previous Year**, the right window for a macro overview. Four of the five indices are up over the period; CAC 40 is the outlier, down 6.4%, while Nikkei 225 leads with +8.2%.*
 
-[→ Open dashboard](http://localhost:3000/public/dashboard/0ad7bcd8-7d38-4638-b35c-7f33c3d2af31) *(localhost only)*
+*US Markets screenshot — coming soon (finalizing the date filter/comparison setup on this tab first).*
 
-Features: date filter, KPI cards per market index, per-market trend charts (Global Market / US Market tabs).
+> Runs **locally** for now (Metabase + its embedded H2 config store, connected to your PostgreSQL Gold layer) — a deliberate choice to keep the project 100% free while it's still growing. A hosted version (Metabase Cloud, or Docker on a small VPS) is a natural next step once the project needs to be shared beyond localhost — see [Roadmap](#roadmap).
+
+**⚠️ The link below only works if Metabase is running on your own machine.** To start it:
+
+```bash
+# One-time setup
+brew install openjdk@21
+mkdir -p ~/Documents/tools/metabase && cd ~/Documents/tools/metabase
+curl -L https://downloads.metabase.com/v0.52.5/metabase.jar -o metabase.jar
+
+# Every time you want the dashboard
+java -jar metabase.jar
+```
+
+Accessible at **http://localhost:3000** once started (first launch takes ~30–60s).
+
+Before opening, refresh the data so the dashboard reflects the latest prices:
+
+```bash
+python3 load_data.py   # re-ingest yfinance + Finviz + SPDR → PostgreSQL
+dbt seed               # reload seeds/tickers.csv
+dbt run                # rebuild index_performance, top_movers, sector_top_movers, whale_signals
+```
+
+[→ Open dashboard](http://localhost:3000/public/dashboard/0ad7bcd8-7d38-4638-b35c-7f33c3d2af31) *(localhost only, once Metabase is running)*
 
 ## Global indices
 
