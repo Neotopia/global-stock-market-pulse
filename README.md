@@ -101,21 +101,23 @@ flowchart LR
 
 Interactive **Stock Analytics** dashboard built with Metabase, connected directly to the Gold layer. Two tabs — **Global Markets** (index KPIs, 1D/YTD/2Y returns) and **US Markets** (sector top movers, whale signals, top volatile stocks). Returns are computed close-to-close (point-in-time), not as an average of daily closes over the period — averaging would systematically understate or overstate the actual move depending on trend direction.
 
-*Example of interpretation (ne-time interpretation of that specific capture):
+*Example of interpretation (one-time interpretation of that specific capture):
 
 ![Global Markets tab](docs/screenshots/dashboard_global_markets.png)
+
 *- KPIs and trend charts shows the latest close and YTD return not a monthly average. 
 As of July 30, 2026: Nikkei 225 leads the year (+19.36%), followed by FTSE 100 (+9.51%) and S&P 500 (+8.44%) — both near multi-year highs. 
 CAC 40 is up modestly (+3.54%), having plateaued after two years of steady gains. Sensex is the outlier, down 8.52% YTD after a sharp pullback from its late-2025 peak, visible as the drop toward the end of its trend line.*
 
 ![US Markets tab](docs/screenshots/dashboard_us_markets.png)
+
 *- US Markets — all tiles on a rolling 7-day window. 
 The backtest confirms the whale signal has a real, if modest, edge: positive alpha across all three holding periods (3/5/10 days), strongest at 10 days, on a robust sample (187–193 trades each). 
-This week's two live signals — MSFT (Technology, 3.41× normal volume) and AMZN (Consumer, 2.58×) — both show a "mixed" pressure hint (Close Location Value near zero), meaning the volume spike doesn't clearly favor buyers or sellers on its own; 
+This week's two live signals — MSFT (Technology, 3.41× normal volume) and AMZN (Consumer, 2.58×) — both show a "mixed" pressure hint (Close Location Value near zero), meaning the volume spike doesn't clearly favor buyers or sellers on its own; *
 
 
 > Runs **locally** for now 
-**⚠️ The link below only works if Metabase is running on your own machine.** To start it:
+To start it:
 
 ```bash
 # One-time setup
@@ -244,25 +246,6 @@ python3 load_data.py   # 1. ingest
 dbt run                # 2. transform
 python3 backtest.py    # 3. analyse
 ```
-
-## CI / CD
-
-Every push to `main` triggers a GitHub Actions workflow that installs dependencies, runs `dbt deps`, and compiles all models — validating Jinja syntax and `ref()` dependencies without requiring a live database.
-
-> 🚧 **Planned — CI Option B:** full `dbt run` + `dbt test` against an ephemeral PostgreSQL service container spun up by GitHub Actions, with a minimal fixture dataset injected at runtime. This removes the dependency on a live database while giving complete test coverage in CI.
-
-## Key concepts practised
-
-- Multi-source ingestion: SSGA Excel files, Finviz screener, yfinance, news API
-- pandas MultiIndex reshaping (wide → long format via `stack()`)
-- Python logging module and type hints throughout
-- dbt Medallion architecture: `view` for staging, `table` for marts
-- dbt testing: `not_null`, `unique`, `dbt_utils.unique_combination_of_columns`
-- PostgreSQL window functions: `DISTINCT ON`, `ROW_NUMBER() OVER (PARTITION BY)`, rolling averages
-- Credential management with python-dotenv
-- dbt seeds for reference data with auto-refresh logic
-- GitHub Actions CI — dbt compile on every push (Option B with ephemeral PostgreSQL in progress)
-- Backtesting with pure pandas: rolling index join, forward price lookup, alpha vs benchmark
 
 ## Roadmap
 
