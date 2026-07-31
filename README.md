@@ -1,15 +1,27 @@
-# stock-analytics-pipeline
+# Global Markets Pulse
 
-![dbt CI](https://github.com/Neotopia/stock-analytics-pipeline/actions/workflows/dbt-ci.yml/badge.svg)
+![dbt CI](https://github.com/Neotopia/global-markets-pulse/actions/workflows/dbt-ci.yml/badge.svg)
 ![Python](https://img.shields.io/badge/Python-3.9+-3776AB?logo=python&logoColor=white)
 ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?logo=postgresql&logoColor=white)
 ![dbt](https://img.shields.io/badge/dbt-FF694B?logo=dbt&logoColor=white)
 ![pandas](https://img.shields.io/badge/pandas-150458?logo=pandas&logoColor=white)
 ![Metabase](https://img.shields.io/badge/Metabase-509EE3?logo=metabase&logoColor=white)
 
-> 🚧 **Work in progress** — this project is actively being built and extended. New layers, models, and visualizations are added incrementally as I progress through the stack.
+**Signals tracked today:**
+![Global Indices](https://img.shields.io/badge/Global_Indices-5_markets_(starter_set)-0ea5e9)
+![Whale Signals](https://img.shields.io/badge/Whale_Signals-US_market_only-f59e0b)
 
-End-to-end analytics pipeline built from scratch as a portfolio project, covering data ingestion, storage, transformation, and visualization.
+A macro pulse on global stock markets — built to spot market-wide shifts quickly, from world index movements down to sector trends and US institutional activity signals.
+
+The analysis works in three layers, each zooming in a bit further:
+
+1. **Global indices** — daily performance of 5 major world indices, a starter set picked to cover the main economic regions rather than exhaustive world coverage (see [Global indices](#global-indices) below for the reasoning behind each one)
+2. **Sector view** — weekly sector movers via SPDR ETFs *(currently US market only — more on this in [Ticker universe](#ticker-universe))*
+3. **US deep dive — whale signals** — a volume-spike detector (`whale_signals`) that flags potential institutional trading activity on individual US stocks (large funds entering/exiting a position leave a footprint in volume), backtested against real price history
+
+All three layers feed the same Metabase dashboard. The project is meant to grow: new macro signals or markets get added as their own layer, without changing the core architecture — see [Roadmap](#roadmap).
+
+> Currently runs **locally** (PostgreSQL + Metabase on your own machine — see [Getting started](#getting-started)), and price history is limited to a **rolling 2-year window** to keep ingestion and storage light while the project is still growing. Both are deliberate scope choices for now, not limitations of the approach.
 
 ## Stack
 
@@ -95,16 +107,34 @@ Interactive **Stock Analytics** dashboard built with Metabase, connected directl
 
 Features: date filter, KPI cards per market index, per-market trend charts (Global Market / US Market tabs).
 
+## Global indices
+
+The 5 indices tracked in `index_performance` were picked to spread across the main regions driving global markets, not just the US:
+
+| Index | Ticker | Region | Why it's tracked |
+|-------|--------|--------|-------------------|
+| S&P 500 | `^GSPC` | United States | World's largest economy, the most-watched global benchmark |
+| CAC 40 | `^FCHI` | France / Eurozone | Eurozone exposure |
+| FTSE 100 | `^FTSE` | United Kingdom | Major European market outside the Eurozone |
+| Nikkei 225 | `^N225` | Japan | Developed Asia |
+| Sensex | `^BSESN` | India | Fast-growing emerging Asia |
+
+Together they give a quick read on US, Europe (both Eurozone and non-Eurozone), and Asia (developed and emerging) in one view.
+
+The rule is one benchmark per region, not one per index worth watching — so notable names like the NASDAQ or other European markets are deliberately left out here, not overlooked.
+
 ## Ticker universe
 
 Tickers are selected dynamically from three sources and combined at runtime:
 
-| Source | Description | Count |
-|--------|-------------|-------|
-| SPDR Sector ETFs | Top 5 holdings per sector (XLK, XLF, XLV, XLY, XLE) via SSGA daily Excel files | ~25 stocks |
-| Finviz volatile | Most volatile S&P 500 + NASDAQ 100 stocks by absolute daily change | 5 stocks |
-| Finviz analyst buys | S&P 500 stocks with Strong Buy consensus, sorted by volume | 5 stocks |
-| Indices | 5 global indices: S&P 500, CAC 40, FTSE 100, Nikkei 225, Sensex | 5 indices |
+| Source | Description | Scope | Count |
+|--------|-------------|-------|-------|
+| SPDR Sector ETFs | Top 5 holdings per sector (XLK, XLF, XLV, XLY, XLE) via SSGA daily Excel files | 🇺🇸 US market only | ~25 stocks |
+| Finviz volatile | Most volatile S&P 500 + NASDAQ 100 stocks by absolute daily change | 🇺🇸 US market only | 5 stocks |
+| Finviz analyst buys | S&P 500 stocks with Strong Buy consensus, sorted by volume | 🇺🇸 US market only | 5 stocks |
+| Indices | 5 global indices — see [Global indices](#global-indices) above | 🌍 Global | 5 indices |
+
+The sector view and the whale signal deep dive both run on this same US stock universe — extending them to other markets (e.g. CAC 40 or FTSE 100 constituents) is on the [Roadmap](#roadmap).
 
 The static SPDR universe is stored in `seeds/tickers.csv` and auto-refreshed when older than 30 days. Finviz picks are fetched live at each pipeline run.
 
@@ -114,8 +144,8 @@ The static SPDR universe is stored in `seeds/tickers.csv` and auto-refreshed whe
 
 ```bash
 # 1. Clone and install dependencies
-git clone https://github.com/Neotopia/stock-analytics-pipeline.git
-cd stock-analytics-pipeline
+git clone https://github.com/Neotopia/global-markets-pulse.git
+cd global-markets-pulse
 pip3 install yfinance pandas sqlalchemy psycopg2-binary python-dotenv \
              dbt-postgres requests openpyxl finvizfinance python-dateutil
 
@@ -136,7 +166,7 @@ dbt test
 ## Project structure
 
 ```
-stock-analytics-pipeline/
+global-markets-pulse/
 ├── load_data.py          # Ingestion: SPDR + Finviz + yfinance → PostgreSQL
 ├── backtest.py           # Whale signal backtesting — pure pandas, saves to PostgreSQL
 ├── .env.example          # Database connection template (never commit .env)
@@ -204,8 +234,4 @@ Every push to `main` triggers a GitHub Actions workflow that installs dependenci
 
 ## Roadmap
 
-Possible next steps to extend the project:
-
-- **CI Option B** — full `dbt run` + `dbt test` against an ephemeral PostgreSQL container in GitHub Actions
-- **Pipeline orchestration** — replace the manual `load_data → dbt run → backtest` sequence with a lightweight orchestrator (Prefect or a Makefile) that enforces execution order, handles failures, and logs each run
-- **Metabase cloud** — deploy Metabase + PostgreSQL on Railway.app to make the dashboard publicly accessible
+This project is meant to evolve — check the [open issues](https://github.com/Neotopia/global-markets-pulse/issues) for planned next steps.
