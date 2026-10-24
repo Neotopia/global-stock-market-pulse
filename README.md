@@ -27,7 +27,7 @@ The analysis works in three layers, each zooming in a bit further:
 
 All three layers feed the same Metabase dashboard. The project is meant to grow: new macro signals or markets get added as their own layer, without changing the core architecture — see [Roadmap](#roadmap).
 
-> Currently runs **locally** (PostgreSQL + Metabase on your own machine — see [Getting started](#getting-started)), and price history is limited to a **rolling 2-year window** to keep ingestion and storage light while the project is still growing. Both are deliberate scope choices for now, not limitations of the approach.
+> The data lives in a free **Neon** PostgreSQL database, refreshed automatically by a **GitHub Actions** workflow every weekday. Metabase runs **locally** and connects to Neon (see [Dashboard](#dashboard)). Price history is limited to a **rolling 2-year window** to keep ingestion and storage light while the project is still growing. Both are deliberate scope choices for now, not limitations of the approach.
 
 ## Stack
 
@@ -38,7 +38,8 @@ yfinance + Finviz → PostgreSQL → dbt → Metabase
 | Layer | Tool | Role |
 |-------|------|------|
 | Ingestion | Python · yfinance · finvizfinance · pandas | Multi-source: SPDR ETF holdings, Finviz volatile picks, analyst buys, global indices |
-| Storage | PostgreSQL | Bronze layer (raw data) — `stock_prices_raw`, `ticker_news_raw` |
+| Storage | PostgreSQL ([Neon](https://neon.tech), free tier) | Bronze layer (raw data) — `stock_prices_raw`, `ticker_news_raw` |
+| Orchestration | GitHub Actions | Scheduled refresh (Mon–Fri): ingestion → dbt run → backtest → dbt test |
 | Transformation | dbt | Silver (staging) + Gold (marts) — tested and documented |
 | Visualization | Metabase | Interactive dashboard connected to PostgreSQL Gold layer — date filter, KPI cards, per-market trend charts |
 
@@ -122,7 +123,8 @@ The backtest confirms the whale signal has a real, if modest, edge: positive alp
 This week's two live signals — MSFT (Technology, 3.41× normal volume) and AMZN (Consumer, 2.58×) — both show a "mixed" pressure hint (Close Location Value near zero), meaning the volume spike doesn't clearly favor buyers or sellers on its own; *
 
 
-> Runs **locally** for now 
+> Metabase runs **locally** and reads from the Neon database, which is kept up to date automatically (see [Data refresh](#data-refresh)). Nothing to install besides Java and the Metabase jar.
+
 To start it:
 
 ```bash
@@ -135,15 +137,19 @@ curl -L https://downloads.metabase.com/v0.52.5/metabase.jar -o metabase.jar
 java -jar metabase.jar
 ```
 
-Accessible at **http://localhost:3000** once started.
+Accessible at **http://localhost:3000** once started. In Metabase, add a PostgreSQL database with your Neon host, port `5432`, database `neondb`, and SSL enabled.
 
-Before opening, refresh the data so the dashboard reflects the stock market data:
+### Data refresh
 
-```bash
-python3 load_data.py   # re-ingest yfinance + Finviz + SPDR → PostgreSQL
-dbt seed               # reload seeds/tickers.csv
-dbt run                # rebuild index_performance, top_movers, sector_top_movers, whale_signals
+The workflow [`.github/workflows/refresh-data.yml`](.github/workflows/refresh-data.yml) runs Monday to Friday at 22:30 UTC (after the US close) and can also be triggered manually from the **Actions** tab. It needs one repository secret, `DATABASE_URL` (the Neon connection string). Steps:
+
 ```
+load_data.py → dbt seed → dbt run (all but backtest_summary) → backtest.py → dbt run backtest_summary → dbt test
+```
+
+The backtest sits between the two `dbt run` steps because `backtest.py` reads `whale_signals_history` (built by dbt) and `backtest_summary` reads the table `backtest.py` writes.
+
+To refresh manually from your machine, run the same steps against your own `DATABASE_URL`.
 
 [→ Open dashboard](http://localhost:3000/public/dashboard/0ad7bcd8-7d38-4638-b35c-7f33c3d2af31) *(localhost only, once Metabase is running)*
 
@@ -180,7 +186,7 @@ The static SPDR universe is stored in `seeds/tickers.csv` and auto-refreshed whe
 
 ## Getting started
 
-**Prerequisites:** Python 3.9+, PostgreSQL, dbt-core
+**Prerequisites:** Python 3.9+, a PostgreSQL database (a free [Neon](https://neon.tech) project works; local PostgreSQL too), dbt-core
 
 ```bash
 # 1. Clone and install dependencies
@@ -191,7 +197,9 @@ pip3 install yfinance pandas sqlalchemy psycopg2-binary python-dotenv \
 
 # 2. Configure your database connection
 cp .env.example .env
-# Edit .env and set DATABASE_URL=postgresql://your_user@localhost:5432/your_db
+# Edit .env and set DATABASE_URL (Neon: postgresql://user:password@host/dbname?sslmode=require,
+# local: postgresql://your_user@localhost:5432/your_db)
+# dbt reads its own ~/.dbt/profiles.yml — use the same credentials, profile name: analytics_mvp
 
 # 3. Load raw data (rolling 2-year window)
 python3 load_data.py
@@ -199,7 +207,9 @@ python3 load_data.py
 # 4. Run dbt transformations
 dbt deps        # install dbt_utils package
 dbt seed        # load seeds/tickers.csv into PostgreSQL
-dbt run
+dbt run --exclude backtest_summary
+python3 backtest.py
+dbt run --select backtest_summary
 dbt test
 ```
 
