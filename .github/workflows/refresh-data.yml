@@ -61,11 +61,15 @@ jobs:
       - name: Seed reference data
         run: dbt seed
 
+      - name: Build dbt models (all except backtest_summary)
+        # backtest.py reads whale_signals_history, which dbt must rebuild first
+        run: dbt run --exclude backtest_summary
+
       - name: Backtest whale signals
         run: python backtest.py
 
-      - name: Build dbt models
-        run: dbt run
+      - name: Build backtest_summary
+        run: dbt run --select backtest_summary
 
       - name: Test dbt models
         run: dbt test
