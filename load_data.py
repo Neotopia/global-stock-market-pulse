@@ -304,7 +304,8 @@ def load_news_to_postgres(tickers: list[str], engine: Engine) -> None:
 def main() -> None:
     end_date   = date.today()
     start_date = end_date - relativedelta(years=2)  # rolling 2-year window
-    engine     = create_engine(environ["DATABASE_URL"])
+    # Force the psycopg2 driver: recent SQLAlchemy versions default to psycopg3
+    engine     = create_engine(environ["DATABASE_URL"].replace("postgresql://", "postgresql+psycopg2://", 1))
 
     # ── 0. Refresh seeds if missing or older than SEEDS_MAX_AGE days ──────────
     seeds_age = (

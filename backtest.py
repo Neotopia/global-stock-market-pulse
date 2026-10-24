@@ -271,7 +271,8 @@ def main() -> None:
     if not db_url:
         raise EnvironmentError("DATABASE_URL not set — check your .env file.")
 
-    engine = create_engine(db_url)
+    # Force the psycopg2 driver: recent SQLAlchemy versions default to psycopg3
+    engine = create_engine(db_url.replace("postgresql://", "postgresql+psycopg2://", 1))
 
     signals, prices = load_data(engine)
 
