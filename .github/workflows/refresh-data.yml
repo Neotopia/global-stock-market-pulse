@@ -1,0 +1,71 @@
+name: Refresh data
+
+# Reloads market data into Neon, then rebuilds dbt models and runs tests.
+# Runs every weekday after the US market close, and can be triggered manually.
+on:
+  schedule:
+    - cron: "30 22 * * 1-5"   # 22:30 UTC, Monday to Friday
+  workflow_dispatch:
+
+jobs:
+  refresh:
+    name: Load data + dbt run + dbt test
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Write dbt profile from DATABASE_URL
+        run: |
+          mkdir -p ~/.dbt
+          python - << 'EOF'
+          import os
+          from urllib.parse import urlparse
+          u = urlparse(os.environ["DATABASE_URL"])
+          profile = f"""analytics_mvp:
+            target: prod
+            outputs:
+              prod:
+                type: postgres
+                host: {u.hostname}
+                user: {u.username}
+                password: "{u.password}"
+                port: {u.port or 5432}
+                dbname: {u.path.lstrip('/')}
+                schema: public
+                sslmode: require
+                threads: 1
+          """
+          open(os.path.expanduser("~/.dbt/profiles.yml"), "w").write(profile)
+          EOF
+
+      - name: Install dbt packages
+        run: dbt deps
+
+      - name: Load raw data (yfinance, Finviz, SPDR)
+        run: python load_data.py
+
+      - name: Seed reference data
+        run: dbt seed
+
+      - name: Backtest whale signals
+        run: python backtest.py
+
+      - name: Build dbt models
+        run: dbt run
+
+      - name: Test dbt models
+        run: dbt test
